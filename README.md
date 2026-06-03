@@ -157,6 +157,7 @@ JS-скрипта нет — автоматизация построена на 
 
 | Дата | Автоматизация | Что изменилось |
 |---|---|---|
+| 2026-06-03 | Wave Run → Iteration | v6: Meta только 9×16; Google+Meta без дублирования ITR; flow-логика AppLovin исправлена (alone→ITR); top-up счётчик platform_count9x16 скорректирован |
 | 2026-05-27 | Wave Run → Iteration | v5: поддержка платформы AppLovin (ALC), policy_of линковка |
 | 2026-05-26 | Wave Run → Homunculus | v5: ограничение суммарной длительности концепта (≤ 60 с) |
 | 2026-05-27 | Wave Print-CSV → Builder | v6: тёмный дисклеймер (disclaimer_style = black → dark_variant overlay) |

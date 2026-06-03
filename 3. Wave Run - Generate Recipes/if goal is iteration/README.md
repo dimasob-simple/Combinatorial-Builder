@@ -47,9 +47,13 @@ Run → Autofilled (лок)
 
 | Платформа | Формат | Flow | Особенности |
 |---|---|---|---|
-| Meta | 9×16 / 16×9 | ITR / RES | Базовый рецепт |
-| AppLovin | 9×16 only | ALC | Подменяет body-ассет на `platform_correct_versions` (если есть) |
-| Google | 9×16 / 16×9 | GGC | Аналогично AppLovin, но поддерживает оба формата |
+| Meta | 9×16 only | ITR | Базовый рецепт. 16×9 не генерируется. |
+| AppLovin | 9×16 only | ALC / ITR | ALC если Meta/Google тоже выбраны, иначе ITR. Подменяет body-ассет на `platform_correct_versions` (если есть). |
+| Google | 9×16 / 16×9 | GGC / ITR | GGC если есть corrected body. 9×16 ITR пропускается если Meta уже выбрана (redundant). |
+
+**Примечания:**
+- При Meta + Google: 9×16 Google ITR не создаётся — Meta ITR покрывает обе платформы.
+- AppLovin-alone (без Meta/Google): flow = ITR, не ALC.
 
 ### 4. Создание записей
 - **Recipes** — на каждый концепт × формат × платформу
@@ -83,6 +87,7 @@ Run → Autofilled (лок)
 
 | Версия | Дата | Изменения |
 |---|---|---|
+| v6 | 2026-06-03 | Meta: только 9×16 (16×9 убрано). Google + Meta: 9×16 ITR не дублируется. `flowForPlatformAndRatio` context-aware (AppLovin-alone → ITR). Исправлен счётчик `platformCount9x16` для top-up runs. |
 | v5 | 2026-05-27 | Поддержка AppLovin (ALC): platform_correct_versions, policy_of линковка, GGC (Google) |
 | v4 | 2026-05-21 | Resize-тег `-FullS` в creo_name для 16×9 |
 | v3 | 2026-05-15 | Мультиформат (9×16 / 16×9) |
