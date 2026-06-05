@@ -292,6 +292,7 @@ async function createPacksAndCreatives(params) {
     selected,
     conceptRecipes,
     assetInfo,
+    hasFreeOverlay = false,
   } = params;
 
   if (!selected || selected.length === 0) return;
@@ -473,11 +474,12 @@ async function createPacksAndCreatives(params) {
         const isAlc = flow === "ALC";
 
         // approach_name: override > hook-body (using effective body)
+        const hookCanonical = (hookAssetId && getCanonical(hookAssetId)) || "";
         let approach;
         if (approachOverride) {
           approach = approachOverride;
         } else if (mode === "iteration") {
-          const hookName = (hookAssetId && getCanonical(hookAssetId)) || "Hook";
+          const hookName = hookCanonical || "Hook";
           const bodyName =
             (effectiveBodyId && getCanonical(effectiveBodyId)) || "Body";
           approach = `${hookName}-${bodyName}`;
@@ -493,7 +495,11 @@ async function createPacksAndCreatives(params) {
         const resizeTag =
           mode === "iteration" && ratio === "16x9" && !isAlc ? "-FullS" : "";
 
-        const creoName = `${safeApproach}${resizeTag}_${safeFunnel}_${flow}_Video_${packName}_${ratio}_${safeLang}_${indexInPack}`;
+        // FREE sticker selected + hook doesn't already carry FREE → prefix the name
+        const freePrefix =
+          hasFreeOverlay && !hookCanonical.includes("FREE") ? "FREE" : "";
+
+        const creoName = `${freePrefix}${safeApproach}${resizeTag}_${safeFunnel}_${flow}_Video_${packName}_${ratio}_${safeLang}_${indexInPack}`;
 
         const fields = {
           [fC_creo_name.id]: creoName,
@@ -644,6 +650,10 @@ async function main() {
   const waveOverlaysLinks = fWaveOverlays
     ? wave.getCellValue(fWaveOverlays) || []
     : [];
+
+  const hasFreeOverlay =
+    Array.isArray(waveOverlaysLinks) &&
+    waveOverlaysLinks.some((x) => x && x.name && x.name.includes("FREE"));
 
   // Link discovery
   const rfRecipesToWaves = findLinkFieldTo(recipesTable, wavesTable);
@@ -1277,6 +1287,7 @@ async function main() {
     selected: packSelected,
     conceptRecipes: packConceptRecipes,
     assetInfo,
+    hasFreeOverlay,
   });
 
   // ===== Assign music =====
