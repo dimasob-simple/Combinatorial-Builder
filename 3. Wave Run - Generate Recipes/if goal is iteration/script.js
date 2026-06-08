@@ -50,6 +50,7 @@ const TABLE_TASKS = "Tasks";
 const TABLE_PACKS = "Packs";
 const TABLE_CREATIVES = "Creatives";
 const TABLE_TEAM = "Team";
+const TABLE_OVERLAYS = "Overlays";
 
 const STATUS_LOCK = "Autofilled";
 const STATUS_SUCCESS = "Print-CSV";
@@ -614,6 +615,10 @@ async function main() {
     "overlays",
     "Overlays",
   ]);
+  const fWaveSticker = getFirstExistingField(wavesTable, [
+    "sticker",
+    "Sticker",
+  ]);
 
   if (!fWaveStatus) throw new Error("Waves.Status not found");
   if (!fWaveTarget) throw new Error("Waves.target_creatives not found");
@@ -651,9 +656,26 @@ async function main() {
     ? wave.getCellValue(fWaveOverlays) || []
     : [];
 
-  const hasFreeOverlay =
-    Array.isArray(waveOverlaysLinks) &&
-    waveOverlaysLinks.some((x) => x && x.name && x.name.includes("FREE"));
+  // Wave.sticker → Overlays.characteristics includes "Free"
+  let hasFreeOverlay = false;
+  const waveStickerLinks = fWaveSticker
+    ? wave.getCellValue(fWaveSticker) || []
+    : [];
+  if (Array.isArray(waveStickerLinks) && waveStickerLinks.length > 0) {
+    const overlaysTable = base.getTable(TABLE_OVERLAYS);
+    const stickerRecord = await overlaysTable.selectRecordAsync(
+      waveStickerLinks[0].id,
+    );
+    if (stickerRecord) {
+      const fCharacteristics = safeGetField(overlaysTable, "characteristics");
+      if (fCharacteristics) {
+        const chars = getMultiNames(
+          stickerRecord.getCellValue(fCharacteristics),
+        );
+        hasFreeOverlay = chars.some((c) => c.toLowerCase() === "free");
+      }
+    }
+  }
 
   // Link discovery
   const rfRecipesToWaves = findLinkFieldTo(recipesTable, wavesTable);
